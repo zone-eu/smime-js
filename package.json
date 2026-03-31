@@ -1,7 +1,7 @@
 {
     "name": "@zone-eu/smime-js",
     "version": "0.1.0",
-    "description": "CMS EnvelopedData and AuthEnvelopedData (S/MIME) encryption using asn1js + Node.js crypto",
+    "description": "S/MIME (CMS) encryption library using asn1js for Node.js",
     "main": "lib/smime.js",
     "scripts": {
         "test": "mocha test/**/*-test.js --timeout 60000"
@@ -14,8 +14,8 @@
         "pkcs7"
     ],
     "author": {
-        "name": "Andris Reinman",
-        "email": "andris@kreata.ee"
+        "name": "Taavi Eomäe",
+        "email": "taavi@zone.ee"
     },
     "license": "EUPL-1.2",
     "dependencies": {
