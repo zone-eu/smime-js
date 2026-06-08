@@ -1,38 +1,39 @@
 {
-    "name": "@zone-eu/smime-js",
-    "version": "0.1.0",
-    "description": "S/MIME (CMS) encryption library using asn1js for Node.js",
-    "main": "lib/smime.js",
-    "scripts": {
-        "test": "mocha test/**/*-test.js --timeout 60000"
-    },
-    "keywords": [
-        "smime",
-        "cms",
-        "encryption",
-        "enveloped-data",
-        "pkcs7"
-    ],
-    "author": {
-        "name": "Taavi Eomäe",
-        "email": "taavi@zone.ee"
-    },
-    "license": "EUPL-1.2",
-    "dependencies": {
-        "asn1js": "^3.0.7"
-    },
-    "devDependencies": {
-        "chai": "4.3.10",
-        "eslint": "8.57.0",
-        "eslint-config-nodemailer": "1.2.0",
-        "eslint-config-prettier": "10.1.8",
-        "mocha": "11.7.5"
-    },
-    "engines": {
-        "node": ">=16.0.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/zone-eu/smime-js.git"
-    }
+  "name": "@zone-eu/smime-js",
+  "version": "0.1.13",
+  "description": "S/MIME encryption (EnvelopedData and AuthEnvelopedData) for Node.js, backed by Rust compiled to WASM.",
+  "main": "lib/smime.js",
+  "types": "lib/smime.d.ts",
+  "scripts": {
+    "test": "mocha test/**/*-test.js --timeout 60000"
+  },
+  "keywords": [
+    "smime",
+    "cms",
+    "encryption",
+    "enveloped-data",
+    "pkcs7"
+  ],
+  "author": {
+    "name": "Taavi Eomäe",
+    "email": "taavi@zone.ee"
+  },
+  "license": "EUPL-1.2",
+  "devDependencies": {
+    "chai": "4.3.10",
+    "eslint": "8.57.0",
+    "eslint-config-nodemailer": "1.2.0",
+    "eslint-config-prettier": "10.1.8",
+    "mocha": "11.7.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "lib/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zone-eu/smime-js.git"
+  }
 }
