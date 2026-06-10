@@ -81,10 +81,8 @@ describe('SMIMEEncryptor (WASM blob)', function () {
             expect(await SMIMEEncryptor.encryptGCM([], Buffer.from('x'))).to.be.false;
         });
 
-        it('skips unsupported recipients and encrypts with the supported one', async function () {
-            let result = await SMIMEEncryptor.encryptGCM([edCert, rsaCert], Buffer.from('Skip.'));
-            expect(result).to.be.an.instanceOf(Buffer);
-            expect(decryptDer(result, rsaKey, rsaCertPath)).to.equal('Skip.');
+        it('throws when any recipient has an unsupported key', async function () {
+            await rejects(SMIMEEncryptor.encryptGCM([edCert, rsaCert], Buffer.from('x')), /unsupported recipient key type/i);
         });
     });
 
@@ -113,6 +111,17 @@ describe('SMIMEEncryptor (WASM blob)', function () {
         });
     }
 
+    // openssl 3.5 cannot decrypt X25519 KARI ("no matching recipient"), so assert the
+    // RFC 8418 structure instead; the encrypt->decrypt roundtrip is covered in Rust tests.
+    it('encrypts to an X25519 recipient per RFC 8418 (HKDF-SHA256 + AES-256 wrap)', async function () {
+        let result = await SMIMEEncryptor.encryptGCM([readCert('test_x25519.pem')], Buffer.from('X25519.'));
+        expect(result).to.be.an.instanceOf(Buffer);
+        let parsed = asn1(result);
+        expect(parsed).to.include('1.2.840.113549.1.9.16.3.19'); // dhSinglePass-stdDH-hkdf-sha256-scheme
+        expect(parsed).to.include('X25519');
+        expect(parsed).to.include('aes256-wrap');
+    });
+
     it('encrypts for mixed RSA + EC P-256 recipients and both decrypt', async function () {
         let result = await SMIMEEncryptor.encryptGCM([rsaCert, EC['P-256'].cert], Buffer.from('Mixed RSA+EC.'));
         expect(result).to.be.an.instanceOf(Buffer);
@@ -136,18 +145,24 @@ describe('SMIMEEncryptor (WASM blob)', function () {
             expect(decryptDer(result, rsaKey, rsaCertPath)).to.equal('OAEP.');
             expect(asn1(result)).to.include('rsaesOaep');
         });
+
+        it('rejects an unknown keyTransport value', async function () {
+            await rejects(SMIMEEncryptor.encryptCBC([rsaCert], Buffer.from('x'), { keyTransport: 'oaep' }), /unsupported keyTransport: oaep/);
+            await rejects(SMIMEEncryptor.encryptGCM([rsaCert], Buffer.from('x'), { keyTransport: 'pkcs1' }), /unsupported keyTransport: pkcs1/);
+        });
     });
 
     describe('validateCertKey', function () {
-        it('accepts the supported RSA and EC certificates', function () {
+        it('accepts the supported RSA, EC and X25519 certificates', function () {
             expect(() => validateCertKey(rsaCert)).to.not.throw();
             for (let { cert } of Object.values(EC)) {
                 expect(() => validateCertKey(cert)).to.not.throw();
             }
+            expect(() => validateCertKey(readCert('test_x25519.pem'))).to.not.throw();
         });
 
-        it('rejects an unsupported key type', function () {
-            expect(() => validateCertKey(edCert)).to.throw(/unsupported/i);
+        it('rejects an Ed25519 signing key', function () {
+            expect(() => validateCertKey(edCert)).to.throw(/unsupported recipient key type: Ed25519/i);
         });
     });
 });

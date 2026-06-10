@@ -1,6 +1,6 @@
 {
   "name": "@zone-eu/smime-js",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "S/MIME encryption (EnvelopedData and AuthEnvelopedData) for Node.js, backed by Rust compiled to WASM.",
   "main": "lib/smime.js",
   "types": "lib/smime.d.ts",

@@ -1,7 +1,9 @@
 // Type definitions for @zone-eu/smime-js
+export type RsaKeyTransport = 'PKCS#1 v1.5' | 'OAEP';
+
 export interface EncryptOptions {
-    /** RSA key transport. Defaults to OAEP. */
-    keyTransport?: 'PKCS#1 v1.5' | 'OAEP';
+    /** RSA key transport. Defaults to OAEP; any other value throws a TypeError. */
+    keyTransport?: RsaKeyTransport;
 }
 
 export interface SMIMEEncryptorType {

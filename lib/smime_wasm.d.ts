@@ -58,9 +58,12 @@ export interface ValidationDetails {
      */
     certificate: string;
     /**
-     * If the certificate has been revoked (currently not implemented)
+     * Status asserted by a verified stapled OCSP response (see [`crate::ocsp`]),
+     * pinned to the trust-anchored issuer;
+     * A verified `revoked` staple clears `certificate_trusted_valid`.
+     * `None` when there is no staple for the signer
      */
-    revocation_status?: string;
+    revocation_status?: StapledStatus;
     /**
      * If all the SCTs are valid (trust unknown)
      */
@@ -88,7 +91,7 @@ export interface RecipientInfoSummary {
      */
     serial_number: string;
     /**
-     * Key encryption algorithm, RFC name (e.g. \"RSAES-PKCS1-v1_5\", \"RSAES-OAEP\")
+     * Key encryption algorithm, RFC name (e.g. `RSAES-PKCS1-v1_5`, `RSAES-OAEP`)
      */
     key_encryption_algorithm: string;
 }
@@ -98,11 +101,11 @@ export interface RecipientInfoSummary {
  */
 export interface EncryptionInfo {
     /**
-     * Content encryption cipher without key size (e.g. \"AES-CBC\", \"3DES-CBC\", \"RC2-CBC\")
+     * Content encryption cipher without key size (e.g. `AES-CBC`, `3DES-CBC`, `RC2-CBC`)
      */
     cipher: string;
     /**
-     * Key size (e.g. \"128-bit\", \"192-bit\", \"256-bit\")
+     * Key size (e.g. `128-bit`, `192-bit`, `256-bit`)
      */
     key_size: string;
     /**
@@ -134,6 +137,11 @@ export interface SignerValidation {
      */
     signing_time?: string;
 }
+
+/**
+ * The certificate status asserted by a verified stapled OCSP response
+ */
+export type StapledStatus = "good" | "revoked" | "unknown";
 
 /**
  * The complete signature result
@@ -213,18 +221,18 @@ export enum TrustStore {
 
 /**
  * Encrypt to recipients using AES-256-CBC (CMS EnvelopedData).
- * Returns DER ContentInfo bytes, or `undefined` if no recipient cert had a usable key.
+ * Throws if `certs_pem` is empty or any recipient cert has an unsupported key.
  */
-export function encrypt_cbc(certs_pem: string[], plaintext: Uint8Array, pkcs1v15: boolean): Uint8Array | undefined;
+export function encrypt_cbc(certs_pem: string[], plaintext: Uint8Array, pkcs1v15: boolean): Uint8Array;
 
 /**
  * Encrypt to recipients using AES-256-GCM (CMS AuthEnvelopedData).
- * Returns DER ContentInfo bytes, or `undefined` if no recipient cert had a usable key.
+ * Throws if `certs_pem` is empty or any recipient cert has an unsupported key.
  */
-export function encrypt_gcm(certs_pem: string[], plaintext: Uint8Array, pkcs1v15: boolean): Uint8Array | undefined;
+export function encrypt_gcm(certs_pem: string[], plaintext: Uint8Array, pkcs1v15: boolean): Uint8Array;
 
 /**
- * Validate a recipient certificate's public key (RSA 2048-4096, or EC P-256/384/521).
+ * Validate a recipient certificate's public key (RSA 2048-4096, EC P-256/384/521, or X25519).
  * Throws if the key is unsupported.
  */
 export function validate_cert_key(cert_pem: string): void;
